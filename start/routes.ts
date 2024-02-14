@@ -10,7 +10,9 @@
 import router from '@adonisjs/core/services/router'
 const APICastsController = () => import('#controllers/api/casts_controller')
 const APIUsersController = () => import('#controllers/api/users_controller')
+const FramesController = () => import('#controllers/frames_controller')
 
 router.on('/').render('pages/home')
 router.resource('api/casts', APICastsController).only(['index', 'show'])
 router.resource('api/users', APIUsersController).only(['index', 'show'])
+router.resource('frames', FramesController).only(['index', 'store'])

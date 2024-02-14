@@ -3,7 +3,7 @@ import { User } from '#models/user';
 
 export default class APIUsersController {
   /**
-   * Return list of all posts or paginate through them
+   * Return list of all users or paginate through them
    */
   async index({}: HttpContext) {
     const users = User.all()
@@ -11,7 +11,7 @@ export default class APIUsersController {
   }
 
   /**
-   * Display a single post by id.
+   * Display a single user by id.
    */
   async show({params }: HttpContext) {
     const user = User.findBy('fid', params.id);

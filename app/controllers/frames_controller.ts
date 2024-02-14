@@ -1,17 +1,13 @@
 import type { HttpContext } from '@adonisjs/core/http'
 
-export default class APIFramesController {
-  /**
-   * Return list of all posts or paginate through them
-   */
-  async index({}: HttpContext) {
-    return [{ id: 1, title: 'Frame 101' }, { id: 2, title: 'Frame 102' }];
+export default class FramesController {
+  async index({ view }: HttpContext) {
+    const score = 100;
+    return view.render('pages/score', { score })
   }
 
-  /**
-   * Display a single post by id.
-   */
-  async show({params }: HttpContext) {
-    return { id: params.id, title: `Frame ${params.id}` };
+  async store({ view }: HttpContext) {
+    const score = 100;
+    return view.render('pages/score', { score })
   }
 }

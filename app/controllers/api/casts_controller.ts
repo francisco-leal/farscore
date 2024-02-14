@@ -3,7 +3,7 @@ import { Cast } from '#models/cast';
 
 export default class APICastsController {
   /**
-   * Return list of all posts or paginate through them
+   * Return list of all casts or paginate through them
    */
   async index({}: HttpContext) {
     const casts = await Cast.all();
@@ -11,7 +11,7 @@ export default class APICastsController {
   }
 
   /**
-   * Display a single post by id.
+   * Display a single cast by id.
    */
   async show({params }: HttpContext) {
     const cast = await Cast.findBy('castHash', params.id);
