@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>farscout</title>
   <meta property="fc:frame" content="vNext" />
-  {{-- <meta property="fc:frame:image" content="<%= meta_fc_image %>" /> --}}
+  <meta property="fc:frame:image" content="/images/thumbnail.png" />
   <meta property="fc:frame:button:1" content="Calculate score" />
   <meta property="fc:frame:button:1:action" content="post" />
   <meta property="fc:frame:post_url" content="/frames" />
+  <meta property="og:title" content="farscout" />
+  <meta property="og:description" content="revealing your farcaster score" />
+  <meta property="og:image" content="/images/thumbnail.png" />
 
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
