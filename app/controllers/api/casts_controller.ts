@@ -1,17 +1,24 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { Cast } from '#models/cast';
 
 export default class APICastsController {
   /**
    * Return list of all posts or paginate through them
    */
   async index({}: HttpContext) {
-    return [{ id: 1, title: 'Cast 101' }, { id: 2, title: 'Cast 102' }];
+    const casts = await Cast.all();
+    return casts;
   }
 
   /**
    * Display a single post by id.
    */
   async show({params }: HttpContext) {
-    return { id: params.id, title: `Cast ${params.id}` };
+    const cast = await Cast.findBy('castHash', params.id);
+
+    if (!cast) {
+      throw new Error('Cast not found');
+    }
+    return cast;
   }
 }

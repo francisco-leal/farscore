@@ -1,20 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { User } from '#models/user';
 
-export default class APIUsersController {
+export default class APIFramesController {
   /**
    * Return list of all posts or paginate through them
    */
   async index({}: HttpContext) {
-    const users = User.all()
-    return users;
+    return [{ id: 1, title: 'Frame 101' }, { id: 2, title: 'Frame 102' }];
   }
 
   /**
    * Display a single post by id.
    */
   async show({params }: HttpContext) {
-    const user = User.findBy('fid', params.id);
-    return user;
+    return { id: params.id, title: `Frame ${params.id}` };
   }
 }
