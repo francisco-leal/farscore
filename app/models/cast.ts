@@ -10,7 +10,7 @@ export class Cast extends BaseModel {
   declare castHash: string
 
   @column()
-  declare userId: bigint
+  declare userId: number
 
   @column()
   declare parentCastHash: string | null
@@ -33,8 +33,8 @@ export class Cast extends BaseModel {
   @column()
   declare quotes_count: number
 
-  @column.dateTime()
-  declare timestamp: DateTime
+  @column()
+  declare timestamp: bigint
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -6,6 +6,8 @@ const merkleRoot = (): string => env.get('MERKLE_ROOT_SECRET')
 
 const addCursor = (cursor: string | null): string => cursor ? `&cursor=${cursor}` : ''
 
+const emptyResponse = { result: {}, next: {}} as MerkleResponse
+
 export const fetchCasts = async (cursor?: string | null) => {
   const url = `https://api.warpcast.com/v2/recent-casts?limit=1000${addCursor(cursor)}`
   const headers = {
@@ -17,12 +19,12 @@ export const fetchCasts = async (cursor?: string | null) => {
     const response = await got.get(url, { headers });
 
     if (response.statusCode !== 200) {
-      return { statusCode: response.statusCode, data: []};
+      return { statusCode: response.statusCode, data: emptyResponse};
     } else {
       return { statusCode: response.statusCode, data: JSON.parse(response.body) as MerkleResponse};
     }
   } catch (error) {
     console.error(error.response.statusCode);
-    return { statusCode: error.response.statusCode, data: []};
+    return { statusCode: error.response.statusCode, data: emptyResponse};
   }
 }

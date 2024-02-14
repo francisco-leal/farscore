@@ -7,7 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('cast_hash', 42).notNullable().unique()
-      table.bigInteger('user_id').unsigned().notNullable()
+      table.integer('user_id').unsigned().notNullable()
       table.string('parent_cast_hash', 42)
       table.string('content', 320).notNullable()
       table.integer('replies_count').defaultTo(0)
@@ -15,7 +15,7 @@ export default class extends BaseSchema {
       table.integer('recasts_count').defaultTo(0)
       table.integer('watches_count').defaultTo(0)
       table.integer('quotes_count').defaultTo(0)
-      table.timestamp('timestamp').notNullable()
+      table.bigint('timestamp').notNullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

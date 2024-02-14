@@ -89,6 +89,7 @@ export interface Cast {
     }
     followerCount?: number
     followingCount?: number
+    activeOnFcNetwork?: boolean
   }
   text: string
   timestamp: number
@@ -109,6 +110,7 @@ export interface Cast {
   parentAuthor?: Profile
   embeds: Embeds | undefined
   tags: Tag[] | undefined
+  quoteCount: number
 }
 
 export interface Verification {

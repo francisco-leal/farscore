@@ -6,8 +6,8 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.bigInteger('fid').notNullable().unique()
-      table.bigInteger('score')
+      table.integer('fid').notNullable().unique()
+      table.integer('score')
       table.string('username')
       table.string('display_name')
       table.string('profile_picture_url')

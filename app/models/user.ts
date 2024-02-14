@@ -7,10 +7,10 @@ export class User extends BaseModel {
   declare id: number
 
   @column()
-  declare fid: bigint
+  declare fid: number
 
   @column()
-  declare score: bigint
+  declare score: number
 
   @column()
   declare username: string
@@ -19,7 +19,7 @@ export class User extends BaseModel {
   declare displayName: string | null
 
   @column()
-  declare profilePictureUrl: string | null
+  declare profilePictureUrl: string | null | undefined
 
   @column()
   declare follower_count: number
