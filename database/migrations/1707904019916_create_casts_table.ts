@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('cast_hash', 42).notNullable().unique()
       table.integer('user_id').unsigned().notNullable()
       table.string('parent_cast_hash', 42)
-      table.string('content', 320).notNullable()
+      table.string('content', 640).notNullable()
       table.integer('replies_count').defaultTo(0)
       table.integer('reactions_count').defaultTo(0)
       table.integer('recasts_count').defaultTo(0)

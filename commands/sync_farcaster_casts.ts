@@ -19,7 +19,7 @@ export default class SyncFarcasterCasts extends BaseCommand {
     let cursor = null
     let i = 0
     
-    while(i < 1) {
+    while(i < 10000) {
       this.logger.info(`Fetching page #${i++}`)
       const { data } = await fetchCasts(cursor)
       const casts = data.result.casts
