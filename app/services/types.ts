@@ -92,7 +92,7 @@ export interface Cast {
     activeOnFcNetwork?: boolean
   }
   text: string
-  timestamp: number
+  timestamp: bigint
   mentions?: ProfileCore[]
   replies: {
     count: number
