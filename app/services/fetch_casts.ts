@@ -1,5 +1,6 @@
 import env from '#start/env'
 import got from 'got'
+import { MerkleResponse } from './types.js'
 
 const merkleRoot = (): string => env.get('MERKLE_ROOT_SECRET')
 
@@ -13,9 +14,13 @@ export const fetchCasts = async (cursor?: string | null) => {
   }
 
   try {
-    const data = await got.get(url, { headers });
+    const response = await got.get(url, { headers });
 
-    return JSON.parse(data.body);
+    if (response.statusCode !== 200) {
+      return { statusCode: response.statusCode, data: []};
+    } else {
+      return { statusCode: response.statusCode, data: JSON.parse(response.body) as MerkleResponse};
+    }
   } catch (error) {
     console.error(error.response.statusCode);
     return { statusCode: error.response.statusCode, data: []};

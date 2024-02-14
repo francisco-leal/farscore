@@ -2,6 +2,8 @@ import { BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 
 import { fetchCasts } from '#services/fetch_casts'
+import { User } from '#models/user'
+import { Cast } from '#models/cast'
 
 export default class SyncFarcasterCasts extends BaseCommand {
   static commandName = 'sync:farcaster-casts'
@@ -12,8 +14,14 @@ export default class SyncFarcasterCasts extends BaseCommand {
   async run() {
     this.logger.info('Starting sync of farcaster casts')
 
-    const result = await fetchCasts();
+    let cursor = null
+    let i = 0
+    
+    while(true) {
+      this.logger.info(`Fetching page #${i++}`);
+      const { data } = await fetchCasts(cursor)
 
-    console.log(result);
+      if (!cursor) { break }
+    }
   }
 }
