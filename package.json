@@ -67,7 +67,9 @@
     "got": "^14.2.0",
     "luxon": "^3.4.4",
     "pg": "^8.11.3",
-    "reflect-metadata": "^0.2.1"
+    "reflect-metadata": "^0.2.1",
+    "satori": "^0.10.13",
+    "sharp": "^0.33.2"
   },
   "eslintConfig": {
     "extends": "@adonisjs/eslint-config/app"

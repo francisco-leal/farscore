@@ -24,8 +24,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
       }
 
       for(let user of users) {
-        const { data } = await fetchFollowers(user.fid)
-        const followers = data
+        const { data: followers } = await fetchFollowers(user.fid)
         
         for(let follower of followers) {
           let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', follower.followerProfileId).first()
