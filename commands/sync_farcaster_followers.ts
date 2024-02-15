@@ -2,7 +2,7 @@ import { BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
-import { fetchFollowers } from '#services/fetch_followers'
+import { fetchFollowersWarpcast } from '#services/fetch_casts'
 
 export default class SyncFarcasterFollowers extends BaseCommand {
   static commandName = 'sync:farcaster-followers'
@@ -18,6 +18,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
 
     while(true) {
       const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+
       if(!users || users.length === 0) {
         break;
       }
@@ -26,20 +27,25 @@ export default class SyncFarcasterFollowers extends BaseCommand {
 
       for(let user of users) {
         this.logger.info(`Processing ${user.follower_count} followers for ${user.username}...`)
-        const { data: followers } = await fetchFollowers(user.fid, user.follower_count)
-        
-        if (!followers || followers.length === 0) {
-          break
-        }
+        let cursor = null
 
-        for(let follower of followers) {
-          let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', follower.followerProfileId).first()
-          if (!connection) {
-            connection = new Connection()
-            connection.targetFid = user.fid
-            connection.sourceFid = follower.followerProfileId
-            connection.dappName = 'farcaster'
-            await connection.save()
+        while(true) {
+          const { data } = await fetchFollowersWarpcast(user.fid, cursor)
+          const userFollowers = data.result.users
+          cursor = data.next?.cursor;
+
+          if(!userFollowers || !cursor) { break };
+
+          this.logger.info(`Got result from warpcast - ${userFollowers.length} casts. Cursor: ${cursor}`)
+
+          for(const userFollowing of userFollowers) {
+            let connection = await Connection.findBy('target_fid', userFollowing.fid)
+            if (!connection) {
+              connection = new Connection()
+              connection.targetFid = user.fid
+              connection.sourceFid = userFollowing.fid
+              await connection.save()
+            }
           }
         }
       }

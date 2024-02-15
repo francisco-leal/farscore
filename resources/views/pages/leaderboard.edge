@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="dark h-full dark:bg-gray-800 dark:text-white">
+  <div class="container mx-auto px-4">
+    <h1 class="text-xl font-bold text-center my-4">Leaderboard</h1>
+    <div class="flex flex-col items-center">
+      <ul class="list-none">
+        @each(user in topUsers)
+          <li class="flex items-center space-x-4 mb-2">
+            <img src="{{ user.profilePictureUrl }}" alt="Profile Picture" class="w-10 h-10 rounded-full object-cover">
+            <span>{{ user.username }} - Score: {{ user.score }}</span>
+          </li>
+        @endeach
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
