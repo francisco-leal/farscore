@@ -1,0 +1,77 @@
+name: production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [20.10.0]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Setup node env
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Installing NPM
+        run: npm install
+
+      - name: Building application
+        run: npm run build
+
+      - name: Copy Procfile
+        run: cp Procfile build
+
+      - name: Copy node modules
+        run: cp -r node_modules build
+
+      - name: Copy ebextensions
+        run: cp -r .ebextensions build
+
+      - name: Print
+        run: ls -la build/
+
+      - name: Generate deployment package
+        run: cd build && zip -r deploy.zip .ebextensions *
+
+      - name: Get timestamp
+        uses: gerred/actions/current-time@master
+        id: current-time
+
+      - name: Run string replace
+        uses: frabert/replace-string-action@master
+        id: format-time
+        with:
+          pattern: '[:\.]+'
+          string: "${{ steps.current-time.outputs.time }}"
+          replace-with: "-"
+          flags: "g"
+
+      - name: Beanstalk Deploy for app
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws_secret_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          application_name: far-score
+          environment_name: Far-score-prod
+          region: eu-west-2
+          version_label: "far-score-v-${{ steps.format-time.outputs.replaced }}"
+          deployment_package: build/deploy.zip
