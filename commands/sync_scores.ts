@@ -24,7 +24,8 @@ export default class SyncScores extends BaseCommand {
   }
 
   calculateConnectionScore(connections: Connection[]) {
-    return connections.length / 100;
+    this.logger.info(`${connections.length}`)
+    return Math.log10(100);
   }
 
   async run() {
@@ -42,10 +43,14 @@ export default class SyncScores extends BaseCommand {
       for(let user of users) {
         const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
         const castScore = this.calculateCastScore(casts)
-        
-        // const connections = await Connection.query().where('target_fid', user.fid)
-        // const connectionScore = this.calculateConnectionScore(connections)
-        const connectionScore = user.follower_count / 100
+
+        const connections = await Connection.query().where('target_fid', user.fid)
+        const connectionScore = this.calculateConnectionScore(connections)
+        // const connectionScore = user.follower_count / 100
+
+        // TOTAL_SCORE = 0.5 * CAST_SCORE + 0.3 * CONNECTION_SCORE + 0.2 AIRSTACK (POAPs, NFTs)
+        // TOTAL_SCORE * 1.2 if active on farcaster
+        // TOTAL_SCORE * 1.2 if fid < 20 000
 
         const totalScore = (castScore*25 + connectionScore) * (user.active_farcaster_badge ? 1.2 : 1)
 

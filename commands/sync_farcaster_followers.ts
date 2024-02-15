@@ -39,11 +39,12 @@ export default class SyncFarcasterFollowers extends BaseCommand {
           this.logger.info(`Got result from warpcast - ${userFollowers.length} casts. Cursor: ${cursor}`)
 
           for(const userFollowing of userFollowers) {
-            let connection = await Connection.findBy('target_fid', userFollowing.fid)
+            let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', userFollowing.fid).first()
             if (!connection) {
               connection = new Connection()
               connection.targetFid = user.fid
               connection.sourceFid = userFollowing.fid
+              connection.dappName = 'farcaster'
               await connection.save()
             }
           }
