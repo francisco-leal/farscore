@@ -31,8 +31,9 @@ export default class SyncScores extends BaseCommand {
     this.logger.info('Starting score calculation')
     let page = 1
 
-    while(true) {
-      const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+    while(page === 1) {
+      // const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+      const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
       if(!users || users.length === 0) {
         break;
       }
@@ -46,12 +47,14 @@ export default class SyncScores extends BaseCommand {
         // const connectionScore = this.calculateConnectionScore(connections)
         const connectionScore = user.follower_count / 100
 
-        user.score = (castScore + connectionScore)
-        if (user.active_farcaster_badge) {
-          user.score = user.score * 1.2
-        }
-        await user.save()
-        this.logger.info(`Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${user.score}...`)
+        const totalScore = (castScore*25 + connectionScore) * (user.active_farcaster_badge ? 1.2 : 1)
+
+        // user.score = (castScore + connectionScore)
+        // if (user.active_farcaster_badge) {
+        //   user.score = user.score * 1.2
+        // }
+        // await user.save()
+        this.logger.info(`Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${totalScore}`)
       }
     }
   }

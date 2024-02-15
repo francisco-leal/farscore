@@ -8,6 +8,9 @@ export default class FramesController {
   }
 
   async store({ view }: HttpContext) {
+    // @TODO:
+    //  * Validate frame using neynar
+    //  * retrive score for user after validation
     const score = await calculateScore(100);
     return view.render('pages/score', { score })
   }
