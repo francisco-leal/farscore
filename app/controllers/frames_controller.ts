@@ -1,17 +1,28 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { calculateScore } from '#services/calculate_score';
+import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit';
+import { User } from '#models/user';
+
 
 export default class FramesController {
-  async index({ view }: HttpContext) {
-    const score = await calculateScore(1);
-    return view.render('pages/score', { score })
-  }
+  async store({ view, request }: HttpContext) {
+    const body = request.body() as FrameRequest;
 
-  async store({ view }: HttpContext) {
-    // @TODO:
-    //  * Validate frame using neynar
-    //  * retrive score for user after validation
-    const score = await calculateScore(100);
-    return view.render('pages/score', { score })
+    const { isValid, message } = await getFrameMessage(body , {
+      neynarApiKey: process.env.NEYNAR_API_KEY,
+    });
+
+    if (!isValid) {
+      return view.render('pages/error');
+    }
+
+    const { fid } = message.interactor;
+
+    const user = await User.query().where('fid', fid).first();
+
+    if (!user) {
+      return view.render('pages/error');
+    }
+
+    return view.render('pages/score', { score: user.score })
   }
 }

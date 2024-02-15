@@ -61,6 +61,7 @@
     "@adonisjs/static": "^1.1.1",
     "@adonisjs/vite": "^2.0.2",
     "@airstack/node": "^0.0.5",
+    "@coinbase/onchainkit": "^0.6.1",
     "@vinejs/vine": "^1.7.1",
     "adonisjs-scheduler": "^1.0.0",
     "edge.js": "^6.0.1",
