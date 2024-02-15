@@ -14,18 +14,24 @@ export default class SyncFarcasterFollowers extends BaseCommand {
 
   async run() {
     this.logger.info('syncing farcaster followers...')
+    let page = 1
 
-    let page = 1;
     while(true) {
-      const users = await User.query().orderBy('id', "desc").forPage(page++, 100)
-
-      if(users.length === 0) {
+      const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+      if(!users || users.length === 0) {
         break;
       }
+      this.logger.info(`changing page to: ${page}, users: ${users.length}...`);
+      page += 1;
 
       for(let user of users) {
-        const { data: followers } = await fetchFollowers(user.fid)
+        this.logger.info(`Processing ${user.follower_count} followers for ${user.username}...`)
+        const { data: followers } = await fetchFollowers(user.fid, user.follower_count)
         
+        if (!followers || followers.length === 0) {
+          break
+        }
+
         for(let follower of followers) {
           let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', follower.followerProfileId).first()
           if (!connection) {

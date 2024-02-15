@@ -46,7 +46,7 @@ export const generateImage = async (fid: number)  => {
           {
             type: 'p',
             props: {
-              children: `by farscore.com`,
+              children: `by farscore.xyz`,
               style: {
                 fontSize: 24,
                 fontFamily: "SpaceGrotesk-SemiBold",

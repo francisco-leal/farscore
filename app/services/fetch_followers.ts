@@ -1,4 +1,4 @@
-import { fetchQuery, init } from "@airstack/node";
+import { init, fetchQueryWithPagination } from "@airstack/node";
 
 if (!process.env.AIRSTACK_API_KEY) throw new Error("AIRSTACK_TOKEN is not set in environment variables");
 
@@ -7,7 +7,7 @@ init(process.env.AIRSTACK_API_KEY);
 const getSocialFollowersQuery = `
 query FetchFollowers($identity: Identity!) {
   SocialFollowers(
-    input: {filter: {identity: {_eq: $identity}}, blockchain: ALL}
+    input: {filter: {identity: {_eq: $identity}}, blockchain: ALL, limit: 200}
   ) {
     Follower {
       dappName
@@ -23,38 +23,38 @@ query FetchFollowers($identity: Identity!) {
 }
 `;
 
-export interface GetFollowersResponse {
-  Follower: {
-    dappName: string;
-    followerProfileId: string;
-    followerAddress: {
-      addresses: string[];
-      socials: {
-        profileName: string;
-        profileImage: string;
-      }[];
-    };
-  }[];
-}
-
-export interface FollowerStructure {
-  dappName: string;
-  followerProfileId: string;
-  followerAddress: {
-    addresses: string[];
-    socials: {
-      profileName: string;
-      profileImage: string;
-    }[];
-  };
-}
-
-export const fetchFollowers = async (fid: number) => {
+export const fetchFollowers = async (fid: number, maxFollowers: number) => {
   if (!fid) {
     return { data: []}
   }
 
-  const res = await fetchQuery(getSocialFollowersQuery, { identity: `fc_fid:${fid}` });
+  const followers = [];
 
-  return { data: res.data.SocialFollowers.Follower}
+  let {data, hasNextPage, getNextPage, error} = await fetchQueryWithPagination(getSocialFollowersQuery, { identity: `fc_fid:${fid}` });
+
+  followers.push(...data.SocialFollowers.Follower);
+  while (hasNextPage) {
+    const result = await getNextPage();
+    if (result) {
+      data = result.data;
+      error = result.error;
+      if (error || !data || !data.SocialFollowers || !data.SocialFollowers.Follower) {
+        console.error(error);
+        break;
+      }
+
+      followers.push(...data.SocialFollowers.Follower);
+      hasNextPage = result.hasNextPage;
+      getNextPage = result.getNextPage;
+    } else {
+      hasNextPage = false;
+    }
+
+    if (followers.length >= maxFollowers) {
+      console.log("Forcing break - max followers reached")
+      break;
+    }
+  }
+
+  return { data: followers}
 };

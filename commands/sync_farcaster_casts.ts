@@ -35,14 +35,14 @@ export default class SyncFarcasterCasts extends BaseCommand {
           this.logger.info(`Creating user ${cast.author.username}`)
           user = new User()
           user.fid = cast.author.fid
+          user.username = cast.author.username
+          user.displayName = cast.author.displayName
+          user.profilePictureUrl = cast.author.pfp?.url
+          user.follower_count = cast.author.followerCount || 0
+          user.following_count = cast.author.followingCount || 0
+          user.active_farcaster_badge = !!cast.author.activeOnFcNetwork
+          await user.save()
         }
-        user.username = cast.author.username
-        user.displayName = cast.author.displayName
-        user.profilePictureUrl = cast.author.pfp?.url
-        user.follower_count = cast.author.followerCount || 0
-        user.following_count = cast.author.followingCount || 0
-        user.active_farcaster_badge = !!cast.author.activeOnFcNetwork
-        await user.save()
 
         let newCast = await Cast.findBy('castHash', cast.hash)
         if (!newCast) {
