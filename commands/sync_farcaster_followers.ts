@@ -17,16 +17,16 @@ export default class SyncFarcasterFollowers extends BaseCommand {
     let page = 1
 
     while(true) {
-      const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+      const users = await User.query().where('id', '<=', 85817).orderBy('id', "desc").forPage(page, 100)
 
       if(!users || users.length === 0) {
         break;
       }
-      this.logger.info(`changing page to: ${page}, users: ${users.length}...`);
+      this.logger.info(`changing page to: ${page}, users: ${users.length}`);
       page += 1;
 
       for(let user of users) {
-        this.logger.info(`Processing ${user.follower_count} followers for ${user.username}...`)
+        this.logger.info(`Processing ${user.follower_count} followers for ${user.username}`)
         let cursor = null
 
         while(true) {
@@ -36,7 +36,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
 
           if(!userFollowers || !cursor) { break };
 
-          this.logger.info(`Got result from warpcast - ${userFollowers.length} casts. Cursor: ${cursor}`)
+          this.logger.info(`Got result from warpcast - ${userFollowers.length} casts. Cursor: ${cursor} - next cursor: ${data.next?.cursor}`)
 
           for(const userFollowing of userFollowers) {
             let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', userFollowing.fid).first()

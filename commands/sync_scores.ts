@@ -12,20 +12,32 @@ export default class SyncScores extends BaseCommand {
     startApp: true
   }
 
-  calculateCastScore(casts: Cast[]) {
+  calculateCastScore(cast: Cast) {
+    let score = 0;
+    score += cast.replies_count * 1.2
+    score += cast.reactions_count
+    score += cast.recasts_count
+    score += cast.watches_count
+    score += cast.quotes_count * 1.5
+    if (cast.content.includes('$DEGEN')) {
+      score = score * 1.2
+    }
+    return score
+  }
+
+  calculateCastsScore(casts: Cast[]) {
     if (casts.length === 0) {
       return 0;
     }
 
     const score = casts.reduce((acc, cast) => {
-      return acc + (cast.replies_count * 1.2)  + cast.reactions_count + cast.recasts_count + cast.watches_count + (cast.quotes_count*1.5)
+      return acc + this.calculateCastScore(cast)
     }, 0)
     return score / casts.length;
   }
 
   calculateConnectionScore(connections: Connection[]) {
-    this.logger.info(`${connections.length}`)
-    return Math.log10(100);
+    return Math.log2(connections.length);
   }
 
   async run() {
@@ -42,23 +54,13 @@ export default class SyncScores extends BaseCommand {
 
       for(let user of users) {
         const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
-        const castScore = this.calculateCastScore(casts)
+        const castScore = this.calculateCastsScore(casts)
 
         const connections = await Connection.query().where('target_fid', user.fid)
         const connectionScore = this.calculateConnectionScore(connections)
-        // const connectionScore = user.follower_count / 100
 
-        // TOTAL_SCORE = 0.5 * CAST_SCORE + 0.3 * CONNECTION_SCORE + 0.2 AIRSTACK (POAPs, NFTs)
-        // TOTAL_SCORE * 1.2 if active on farcaster
-        // TOTAL_SCORE * 1.2 if fid < 20 000
+        const totalScore = (castScore + connectionScore) * (user.active_farcaster_badge ? 1.2 : 1)
 
-        const totalScore = (castScore*25 + connectionScore) * (user.active_farcaster_badge ? 1.2 : 1)
-
-        // user.score = (castScore + connectionScore)
-        // if (user.active_farcaster_badge) {
-        //   user.score = user.score * 1.2
-        // }
-        // await user.save()
         this.logger.info(`Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${totalScore}`)
       }
     }
