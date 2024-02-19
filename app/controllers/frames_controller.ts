@@ -4,19 +4,7 @@ import { User } from '#models/user';
 
 
 export default class FramesController {
-  async index({ view, request }: HttpContext) {
-    // const body = request.body() as FrameRequest;
-
-    // const { isValid, message } = await getFrameMessage(body , {
-    //   neynarApiKey: process.env.NEYNAR_API_KEY,
-    // });
-
-    // if (!isValid) {
-    //   console.log("Invalid frame message")
-    //   return view.render('pages/error');
-    // }
-
-    // const { fid } = message.interactor;
+  async index({ view }: HttpContext) {
     const fid = 195255;
 
     const user = await User.query().where('fid', fid).first();
