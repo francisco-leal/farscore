@@ -37,6 +37,9 @@ export default class SyncScores extends BaseCommand {
   }
 
   calculateConnectionScore(connections: Connection[]) {
+    if (connections.length <= 0) {
+      return 0;
+    }
     return Math.log2(connections.length);
   }
 
@@ -44,9 +47,9 @@ export default class SyncScores extends BaseCommand {
     this.logger.info('Starting score calculation')
     let page = 1
 
-    while(page === 1) {
-      // const users = await User.query().orderBy('id', "desc").forPage(page, 100)
-      const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
+    while(true) {
+      const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+      // const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
       if(!users || users.length === 0) {
         break;
       }

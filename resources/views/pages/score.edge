@@ -5,13 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>farscore</title>
   <meta property="fc:frame" content="vNext" />
-  <meta property="fc:frame:image" content="/images/thumbnail.png" />
-  <meta property="fc:frame:button:1" content="Recalculate score" />
+  <meta property="fc:frame:image" content={{route('generated_images.show', [fid])}} />
+  <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+  <meta property="fc:frame:button:1" content="Search" />
   <meta property="fc:frame:button:1:action" content="post" />
-  <meta property="fc:frame:post_url" content="/frames" />
+  <meta property="fc:frame:button:2" content="Leaderboard" />
+  <meta property="fc:frame:button:2:action" content="post" />
+  <meta property="fc:frame:button:3" content="Top Followers" />
+  <meta property="fc:frame:button:3:action" content="post" />
+  <meta property="fc:frame:post_url" content="/frames/score" />
   <meta property="og:title" content="farscore" />
   <meta property="og:description" content="revealing your farcaster score" />
-  <meta property="og:image" content={{`/generated_images/${score}`}} />
+  <meta property="og:image" content={{route('generated_images.show', [fid])}} />
 
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

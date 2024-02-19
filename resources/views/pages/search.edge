@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>farscore</title>
+  <title>farscore - search</title>
   <meta property="fc:frame" content="vNext" />
-  <meta property="fc:frame:image" content="{{asset('images/thumbnail.png')}}" />
+  <meta property="fc:frame:image" content={{route('generated_images.show', [fid])}} />
   <meta property="fc:frame:image:aspect_ratio" content="1:1" />
-  <meta property="fc:frame:button:1" content="Calculate my score" />
+  <meta property="fc:frame:input:text" content="farcaster username" />
+  <meta property="fc:frame:button:1" content="Search" />
   <meta property="fc:frame:button:1:action" content="post" />
-  <meta property="fc:frame:post_url" content="/frames/main" />
+  <meta property="fc:frame:post_url" content="/frames/search" />
   <meta property="og:title" content="farscore" />
   <meta property="og:description" content="revealing your farcaster score" />
-  <meta property="og:image" content="{{asset('images/thumbnail.png')}}" />
+  <meta property="og:image" content={{route('generated_images.show', [fid])}} />
 
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -20,6 +21,7 @@
   <div class="flex h-full justify-center items-center">
     <div class="text-center">
       <h1 class="text-xl font-bold">gm</h1>
+      <p class="text-sm">Your score is {{score}}</p>
     </div>
   </div>
 </body>

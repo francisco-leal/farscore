@@ -22,7 +22,7 @@ export const generateImage = async (fid: number)  => {
           {
             type: 'p',
             props: {
-              children: `${username} farcaster score`,
+              children: `@${username} farcaster score`,
               style: {
                 fontSize: 24,
                 fontFamily: "SpaceGrotesk-regular",
