@@ -8,7 +8,7 @@ const privateKeyEncryption = new Encryption({
   secret: env.get("WALLET_PRIVATE_KEY_SECRET")
 });
 
-export default class Wallet extends BaseModel {
+export class Wallet extends BaseModel {
   @column({ isPrimary: true })
   declare id: number;
 
@@ -32,7 +32,7 @@ export default class Wallet extends BaseModel {
     consume: (value?: Buffer) => (!value ? null : privateKeyEncryption.decrypt(value.toString())),
     prepare: (value?: unknown) => (!value ? null : privateKeyEncryption.encrypt(value))
   })
-  declare mnemonic: String;
+  declare mnemonic: String | null | undefined;
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime;

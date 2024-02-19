@@ -12,12 +12,13 @@ export default class extends BaseSchema {
       table.enu("wallet_type", ["smart_contract_account", "externally_owned_account"], {
         useNative: true,
         enumName: "wallet_types",
-        existingType: false
+        existingType: false,
+        schemaName: "public"
       });
 
       table.string("public_address").notNullable();
-      table.string("private_key").notNullable();
-      table.string("mnemonic").notNullable();
+      table.string("private_key");
+      table.string("mnemonic");
 
       table.timestamp("created_at");
       table.timestamp("updated_at");
@@ -27,7 +28,7 @@ export default class extends BaseSchema {
   }
 
   async down() {
-    this.schema.raw('DROP TYPE IF EXISTS "wallet_types"');
+    this.schema.raw('DROP TYPE IF EXISTS "wallet_types";');
     this.schema.dropTable(this.tableName);
   }
 }

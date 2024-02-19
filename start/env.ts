@@ -44,5 +44,13 @@ export default await Env.create(new URL("../", import.meta.url), {
   |----------------------------------------------------------
   */
 
-  WALLET_PRIVATE_KEY_SECRET: Env.schema.string()
+  WALLET_PRIVATE_KEY_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for web3
+  |----------------------------------------------------------
+  */
+  JSON_RPC_URL: Env.schema.string(),
+  BUNDLER_URL: Env.schema.string()
 });
