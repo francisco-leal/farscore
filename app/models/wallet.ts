@@ -16,23 +16,23 @@ export class Wallet extends BaseModel {
   declare userId: number;
 
   @column()
-  declare publicAddress: String;
+  declare publicAddress: string;
 
   // It can be a EOA or a SCA
   @column()
-  declare walletType: String;
+  declare walletType: string;
 
   @column({
     consume: (value?: Buffer) => (!value ? null : privateKeyEncryption.decrypt(value.toString())),
     prepare: (value?: unknown) => (!value ? null : privateKeyEncryption.encrypt(value))
   })
-  declare privateKey: String;
+  declare privateKey: string;
 
   @column({
     consume: (value?: Buffer) => (!value ? null : privateKeyEncryption.decrypt(value.toString())),
     prepare: (value?: unknown) => (!value ? null : privateKeyEncryption.encrypt(value))
   })
-  declare mnemonic: String | null | undefined;
+  declare mnemonic: string | null | undefined;
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime;

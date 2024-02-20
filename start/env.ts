@@ -52,5 +52,7 @@ export default await Env.create(new URL("../", import.meta.url), {
   |----------------------------------------------------------
   */
   JSON_RPC_URL: Env.schema.string(),
-  BUNDLER_URL: Env.schema.string()
+  BUNDLER_URL: Env.schema.string(),
+  PASSPORT_CONTRACT_ADDRESS: Env.schema.string(),
+  PAYMASTER_API_KEY: Env.schema.string()
 });
