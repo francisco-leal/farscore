@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/ace'
+import { BaseCommand, args } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 
 import { fetchCasts } from '#services/fetch_casts'
@@ -13,10 +13,13 @@ export default class SyncFarcasterCasts extends BaseCommand {
     startApp: true
   }
 
+  @args.string()
+  declare startingCursor: string;
+
   async run() {
     this.logger.info('Starting sync of farcaster casts')
 
-    let cursor = null
+    let cursor = this.startingCursor || undefined;
     let i = 0
     
     while(i < 10000) {
