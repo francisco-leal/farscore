@@ -18,7 +18,7 @@ export default class FramesController {
     return view.render('pages/score', { score: user.score, fid: user.fid })
   }
 
-  async store({ view, request }: HttpContext) {
+  async main({ view, request }: HttpContext) {
     const body = request.body() as FrameRequest;
 
     const { isValid, message } = await getFrameMessage(body , {
@@ -40,35 +40,6 @@ export default class FramesController {
     }
 
     return view.render('pages/score', { score: user.score, fid: user.fid })
-  }
-
-  async main({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
-
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
-
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
-
-    const { fid } = message.interactor;
-    
-    if(message.button === 1) {
-      // search
-      return view.render('pages/search')
-    } else if (message.button === 2) {
-      // leaderboard
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
-      return view.render('pages/leaderboard', { topUsers })
-    } else if (message.button === 3) {
-      // top followers
-      const user = await User.query().where('fid', fid).first();
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
-      return view.render('pages/top_followers', { topUsers, user })
-    }
   };
 
   async followers({ view, request }: HttpContext) {
