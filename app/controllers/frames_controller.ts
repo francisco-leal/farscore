@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit';
 import { User } from '#models/user';
+import { Connection } from '#models/connection';
 
 const BASE_FID = 195255;
 
@@ -54,6 +55,8 @@ export default class FramesController {
       return view.render('pages/error');
     }
 
+    const { fid } = message.interactor;
+
     if(message.button === 1) {
       // search
       return view.render('pages/search')
@@ -62,9 +65,12 @@ export default class FramesController {
       const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
       return view.render('pages/leaderboard', { topUsers })
     } else if (message.button === 3) {
-      // followers
-      // TODO: Replace with actual followers
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
+      // top followers
+      const topUsers = await User.query().whereIn(
+        'fid',
+        Connection.query().where('target_fid', fid).select('source_fid')
+      ).orderBy('score', 'desc').limit(5)
+
       return view.render('pages/leaderboard', { topUsers })
     }
   };
@@ -82,7 +88,7 @@ export default class FramesController {
     }
 
     const { fid } = message.interactor;
-    
+
     if(message.button === 1) {
       // my score
       const user = await User.query().where('fid', fid).first();
@@ -129,7 +135,11 @@ export default class FramesController {
       return view.render('pages/score', { score: user.score, fid: user.fid })
     } else if (message.button === 2) {
       // top followers
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
+      const topUsers = await User.query().whereIn(
+        'fid',
+        Connection.query().where('target_fid', fid).select('source_fid')
+      ).orderBy('score', 'desc').limit(5)
+
       return view.render('pages/leaderboard', { topUsers })
     } else if (message.button === 3) {
       // search
