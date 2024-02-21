@@ -10,7 +10,6 @@
 import router from '@adonisjs/core/services/router'
 const APICastsController = () => import('#controllers/api/casts_controller')
 const APIUsersController = () => import('#controllers/api/users_controller')
-const FramesController = () => import('#controllers/frames_controller')
 const ImagesController = () => import('#controllers/images_controller')
 const LeaderboardController = () => import('#controllers/leaderboard_controller')
 const SearchController = () => import('#controllers/search_controller')
@@ -24,7 +23,6 @@ router.resource('leaderboard', LeaderboardController).only(['index', 'store'])
 router.resource('search', SearchController).only(['index'])
 router.resource('followers', FollowersController).only(['index'])
 
-router.resource('frames', FramesController).only(['index', 'store'])
 router.post('frames/main', 'FramesController.main')
 router.post('frames/followers', 'FramesController.followers')
 router.post('frames/leaderboard', 'FramesController.leaderboard')
