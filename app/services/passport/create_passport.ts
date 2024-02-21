@@ -1,4 +1,5 @@
 import env from "#start/env";
+import { DateTime } from "luxon";
 
 import PassportContract from "./passport.json" with { type: "json" };
 
@@ -9,31 +10,37 @@ import { PaymasterMode } from "@biconomy/paymaster";
 import { generateWallets } from "#services/generate_wallets";
 
 import { User } from "#models/user";
+import { Passport } from "#models/passport";
 
 export const createPassport = async (userId: number) => {
   const user = await User.find(userId);
 
   if (!user) {
-    return { created: false, error: "User not found" };
+    return { passport: null, created: false, error: "User not found" };
   }
 
-  const result = await generateWallets(userId);
+  let passport = await Passport.query().where("user_id", userId).first();
 
-  if (!result.externallyOwnedAccount) {
-    console.error("Missing wallet");
-    return;
+  if (passport) {
+    return { passport, created: false, error: "Passport already exists" };
+  }
+
+  const walletsResult = await generateWallets(userId);
+
+  if (!walletsResult.externallyOwnedAccount || !walletsResult.smartContractAccount) {
+    console.error("Missing wallets");
+    return { passport, created: false, error: "Wallets not created." };
   }
 
   // Your configuration with private key and Biconomy API key
   const config = {
-    privateKey: result.externallyOwnedAccount.privateKey,
+    privateKey: walletsResult.externallyOwnedAccount.privateKey,
+    walletAddress: walletsResult.smartContractAccount.publicAddress,
     biconomyPaymasterApiKey: env.get("PAYMASTER_API_KEY"),
     bundlerUrl: env.get("BUNDLER_URL"),
     rpcUrl: env.get("JSON_RPC_URL"),
     passportContractAddress: env.get("PASSPORT_CONTRACT_ADDRESS")
   };
-
-  console.log("Config", config);
 
   // Generate EOA from private key using ethers.js
   let provider = new ethers.JsonRpcProvider(config.rpcUrl);
@@ -45,8 +52,6 @@ export const createPassport = async (userId: number) => {
     biconomyPaymasterApiKey: config.biconomyPaymasterApiKey,
     bundlerUrl: config.bundlerUrl
   });
-
-  console.log("SCA Address", await smartAccount.getAddress());
 
   const passportContract = new ethers.Contract(config.passportContractAddress, PassportContract.abi, provider);
 
@@ -61,12 +66,33 @@ export const createPassport = async (userId: number) => {
     paymasterServiceData: { mode: PaymasterMode.SPONSORED }
   });
   const { transactionHash } = await userOpResponse.waitForTxHash();
-  console.log("Transaction Hash", transactionHash);
-  const userOpReceipt = await userOpResponse.wait();
-  if (userOpReceipt.success == "true") {
-    console.log("UserOp receipt", userOpReceipt);
-    console.log("Transaction receipt", userOpReceipt.receipt);
+
+  if (!transactionHash) {
+    console.error("Something went wrong. Unable to fetch transaction");
+    return { passport, created: false, error: "Missing transaction hash." };
   }
 
-  return { transactionHash, created: true };
+  const userOpReceipt = await userOpResponse.wait();
+
+  if (userOpReceipt.success != "true") {
+    console.error("Unable to create passport. UserOp failed.");
+    return { passport, created: false, error: "userOp was not successful." };
+  }
+
+  const txBlockNumber = userOpReceipt.receipt.blockNumber;
+  const txBlock = await provider.getBlock(txBlockNumber);
+
+  const blockTimestamp = txBlock?.timestamp;
+
+  passport = new Passport();
+  passport.passportId = await passportContract.passportId(config.walletAddress);
+  passport.userId = userId;
+  passport.transactionHash = transactionHash;
+  if (blockTimestamp) {
+    const jsDate = new Date(blockTimestamp * 1000);
+    passport.transactionTimestamp = DateTime.fromJSDate(jsDate);
+  }
+  await passport.save();
+
+  return { passport, created: true };
 };

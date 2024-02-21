@@ -19,6 +19,6 @@ export default class CreatePassport extends BaseCommand {
 
     const result = await createPassport(Number(this.userId));
 
-    this.logger.info(`Transaction Hash: ${result?.transactionHash}`);
+    this.logger.info(`Passport id: ${result.passport?.passportId}`);
   }
 }
