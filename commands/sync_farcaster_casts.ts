@@ -1,69 +1,75 @@
-import { BaseCommand, args } from '@adonisjs/core/ace'
-import type { CommandOptions } from '@adonisjs/core/types/ace'
+import { BaseCommand, args } from "@adonisjs/core/ace";
+import type { CommandOptions } from "@adonisjs/core/types/ace";
 
-import { fetchCasts } from '#services/fetch_casts'
-import { User } from '#models/user'
-import { Cast } from '#models/cast'
+import { fetchCasts } from "#services/fetch_casts";
+import { User } from "#models/user";
+import { Cast } from "#models/cast";
 
 export default class SyncFarcasterCasts extends BaseCommand {
-  static commandName = 'sync:farcaster-casts'
-  static description = 'Sync all farcaster casts via the warpcast api.'
+	static commandName = "sync:farcaster-casts";
+	static description = "Sync all farcaster casts via the warpcast api.";
 
-  static options: CommandOptions = {
-    startApp: true
-  }
+	static options: CommandOptions = {
+		startApp: true,
+	};
 
-  @args.string()
-  declare startingCursor: string;
+	@args.string()
+	declare startingCursor: string;
 
-  async run() {
-    this.logger.info('Starting sync of farcaster casts')
+	async run() {
+		this.logger.info("Starting sync of farcaster casts");
 
-    let cursor = this.startingCursor || undefined;
-    let i = 0
-    
-    while(i < 10000) {
-      this.logger.info(`Fetching page #${i++}`)
-      const { data } = await fetchCasts(cursor)
-      const casts = data.result.casts
-      cursor = data.next?.cursor;
+		let cursor = this.startingCursor || undefined;
+		let i = 0;
 
-      if(!casts) { break };
+		while (i < 10000) {
+			this.logger.info(`Fetching page #${i++}`);
+			const { data } = await fetchCasts(cursor);
+			const casts = data.result.casts;
+			cursor = data.next?.cursor;
 
-      this.logger.info(`Got result from warpcast - ${casts.length} casts. Cursor: ${cursor}`)
+			if (!casts) {
+				break;
+			}
 
-      for(const cast of casts) {
-        let user = await User.findBy('fid', cast.author.fid)
-        if (!user) {
-          this.logger.info(`Creating user ${cast.author.username}`)
-          user = new User()
-          user.fid = cast.author.fid
-          user.username = cast.author.username
-          user.displayName = cast.author.displayName
-          user.profilePictureUrl = cast.author.pfp?.url
-          user.follower_count = cast.author.followerCount || 0
-          user.following_count = cast.author.followingCount || 0
-          user.active_farcaster_badge = !!cast.author.activeOnFcNetwork
-          await user.save()
-        }
+			this.logger.info(
+				`Got result from warpcast - ${casts.length} casts. Cursor: ${cursor}`,
+			);
 
-        let newCast = await Cast.findBy('castHash', cast.hash)
-        if (!newCast) {
-          newCast = new Cast()
-          newCast.castHash = cast.hash
-        }
-        newCast.content = cast.text
-        newCast.parentCastHash = cast.parentHash
-        newCast.replies_count = cast.replies.count
-        newCast.recasts_count = cast.recasts.count
-        newCast.watches_count = cast.watches.count
-        newCast.quotes_count = cast.quoteCount
-        newCast.timestamp = cast.timestamp
-        newCast.userId = user.id
-        await newCast.save()
-      }
+			for (const cast of casts) {
+				let user = await User.findBy("fid", cast.author.fid);
+				if (!user) {
+					this.logger.info(`Creating user ${cast.author.username}`);
+					user = new User();
+					user.fid = cast.author.fid;
+					user.username = cast.author.username;
+					user.displayName = cast.author.displayName;
+					user.profilePictureUrl = cast.author.pfp?.url;
+					user.follower_count = cast.author.followerCount || 0;
+					user.following_count = cast.author.followingCount || 0;
+					user.active_farcaster_badge = !!cast.author.activeOnFcNetwork;
+					await user.save();
+				}
 
-      if (!cursor) { break }
-    }
-  }
+				let newCast = await Cast.findBy("castHash", cast.hash);
+				if (!newCast) {
+					newCast = new Cast();
+					newCast.castHash = cast.hash;
+				}
+				newCast.content = cast.text;
+				newCast.parentCastHash = cast.parentHash;
+				newCast.replies_count = cast.replies.count;
+				newCast.recasts_count = cast.recasts.count;
+				newCast.watches_count = cast.watches.count;
+				newCast.quotes_count = cast.quoteCount;
+				newCast.timestamp = cast.timestamp;
+				newCast.userId = user.id;
+				await newCast.save();
+			}
+
+			if (!cursor) {
+				break;
+			}
+		}
+	}
 }

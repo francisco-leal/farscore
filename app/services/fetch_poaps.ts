@@ -1,6 +1,7 @@
 import { init, fetchQuery } from "@airstack/node";
 
-if (!process.env.AIRSTACK_API_KEY) throw new Error("AIRSTACK_TOKEN is not set in environment variables");
+if (!process.env.AIRSTACK_API_KEY)
+	throw new Error("AIRSTACK_TOKEN is not set in environment variables");
 
 init(process.env.AIRSTACK_API_KEY);
 
@@ -25,21 +26,21 @@ query FetchPoaps($identity: Identity!, $poapEventIds: [String!]) {
 `;
 
 export const fetchPoaps = async (fid: number, poapEventIds: string[]) => {
-  if (!fid) {
-    return [];
-  }
+	if (!fid) {
+		return [];
+	}
 
-  let { data, error } = await fetchQuery(getUserPoaps, {
-    identity: `fc_fid:${fid}`,
-    poapEventIds: poapEventIds
-  });
+	let { data, error } = await fetchQuery(getUserPoaps, {
+		identity: `fc_fid:${fid}`,
+		poapEventIds: poapEventIds,
+	});
 
-  if (error || !data || !data.Wallet || !data.Wallet.poaps) {
-    if (error) console.error(error);
-    return [];
-  }
+	if (error || !data || !data.Wallet || !data.Wallet.poaps) {
+		if (error) console.error(error);
+		return [];
+	}
 
-  const poaps = data.Wallet.poaps;
+	const poaps = data.Wallet.poaps;
 
-  return poaps;
+	return poaps;
 };
