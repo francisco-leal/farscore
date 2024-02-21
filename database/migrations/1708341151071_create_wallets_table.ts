@@ -1,7 +1,7 @@
 import { BaseSchema } from "@adonisjs/lucid/schema";
 
 export default class extends BaseSchema {
-	protected tableName = "poaps";
+	protected tableName = "wallets";
 
 	async up() {
 		this.schema.createTable(this.tableName, (table) => {
@@ -9,15 +9,20 @@ export default class extends BaseSchema {
 
 			table.integer("user_id").unsigned().notNullable();
 
-			table.string("collection_name").notNullable();
+			table.enu(
+				"wallet_type",
+				["smart_contract_account", "externally_owned_account"],
+				{
+					useNative: true,
+					enumName: "wallet_types",
+					existingType: false,
+					schemaName: "public",
+				},
+			);
 
-			table.string("poap_id").notNullable().unique();
-			table.integer("chain_id").notNullable();
-			table.integer("event_id").notNullable();
-			table.integer("token_id").notNullable();
-			table.string("token_address");
-			table.string("token_uri");
-			table.timestamp("minted_at");
+			table.string("public_address").notNullable();
+			table.string("private_key");
+			table.string("mnemonic");
 
 			table.timestamp("created_at");
 			table.timestamp("updated_at");
@@ -31,6 +36,7 @@ export default class extends BaseSchema {
 	}
 
 	async down() {
+		this.schema.raw('DROP TYPE IF EXISTS "wallet_types";');
 		this.schema.dropTable(this.tableName);
 	}
 }

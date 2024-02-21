@@ -1,7 +1,7 @@
 import { BaseSchema } from "@adonisjs/lucid/schema";
 
 export default class extends BaseSchema {
-	protected tableName = "poaps";
+	protected tableName = "passports";
 
 	async up() {
 		this.schema.createTable(this.tableName, (table) => {
@@ -9,15 +9,9 @@ export default class extends BaseSchema {
 
 			table.integer("user_id").unsigned().notNullable();
 
-			table.string("collection_name").notNullable();
-
-			table.string("poap_id").notNullable().unique();
-			table.integer("chain_id").notNullable();
-			table.integer("event_id").notNullable();
-			table.integer("token_id").notNullable();
-			table.string("token_address");
-			table.string("token_uri");
-			table.timestamp("minted_at");
+			table.string("transaction_hash").notNullable();
+			table.integer("passport_id").notNullable();
+			table.timestamp("transaction_timestamp");
 
 			table.timestamp("created_at");
 			table.timestamp("updated_at");

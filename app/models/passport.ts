@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { BaseModel, column } from "@adonisjs/lucid/orm";
 
-export class Poap extends BaseModel {
+export class Passport extends BaseModel {
 	@column({ isPrimary: true })
 	declare id: number;
 
@@ -9,28 +9,13 @@ export class Poap extends BaseModel {
 	declare userId: number;
 
 	@column()
-	declare collectionName: string;
+	declare passportId: number;
 
 	@column()
-	declare poapId: number;
-
-	@column()
-	declare chainId: number;
-
-	@column()
-	declare eventId: number;
-
-	@column()
-	declare tokenId: number;
-
-	@column()
-	declare tokenAddress: string | null;
-
-	@column()
-	declare tokenUri: string | null;
+	declare transactionHash: string;
 
 	@column.dateTime()
-	declare mintedAt: DateTime | null;
+	declare transactionTimestamp: DateTime | null;
 
 	@column.dateTime({ autoCreate: true })
 	declare createdAt: DateTime;

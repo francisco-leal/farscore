@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./",
     "outDir": "./build",
+    "resolveJsonModule": true,
     "paths": {
       "#controllers/*": ["./app/controllers/*.js"],
       "#exceptions/*": ["./app/exceptions/*.js"],
@@ -19,7 +20,7 @@
       "#database/*": ["./database/*.js"],
       "#tests/*": ["./tests/*.js"],
       "#start/*": ["./start/*.js"],
-      "#config/*": ["./config/*.js"],
-    },
-  },
+      "#config/*": ["./config/*.js"]
+    }
+  }
 }

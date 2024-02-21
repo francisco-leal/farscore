@@ -1,171 +1,186 @@
-import type { HttpContext } from '@adonisjs/core/http'
-import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit';
-import { User } from '#models/user';
-import { Connection } from '#models/connection';
+import type { HttpContext } from "@adonisjs/core/http";
+import { FrameRequest, getFrameMessage } from "@coinbase/onchainkit";
+import { User } from "#models/user";
+import { Connection } from "#models/connection";
+import { createPassport } from "#services/passport/create_passport";
 
 const BASE_FID = 195255;
 
 export default class FramesController {
-  async index({ view }: HttpContext) {
-    const fid = BASE_FID;
+	async index({ view }: HttpContext) {
+		const fid = BASE_FID;
 
-    const user = await User.query().where('fid', fid).first();
+		const user = await User.query().where("fid", fid).first();
 
-    if (!user) {
-      console.log("No user found")
-      return view.render('pages/error');
-    }
+		if (!user) {
+			console.log("No user found");
+			return view.render("pages/error");
+		}
 
-    return view.render('pages/score', { score: user.score, fid: user.fid })
-  }
+		return view.render("pages/score", { score: user.score, fid: user.fid });
+	}
 
-  async main({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
+	async main({ view, request }: HttpContext) {
+		const body = request.body() as FrameRequest;
 
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
+		const { isValid, message } = await getFrameMessage(body, {
+			neynarApiKey: process.env.NEYNAR_API_KEY,
+		});
 
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
+		if (!isValid) {
+			console.log("Invalid frame message");
+			return view.render("pages/error");
+		}
 
-    const { fid } = message.interactor;
+		const { fid } = message.interactor;
 
-    const user = await User.query().where('fid', fid).first();
+		const user = await User.query().where("fid", fid).first();
 
-    if (!user) {
-      console.log("No user found")
-      return view.render('pages/error');
-    }
+		if (!user) {
+			console.log("No user found");
+			return view.render("pages/error");
+		}
 
-    return view.render('pages/score', { score: user.score, fid: user.fid })
-  };
+		await createPassport(user.id);
 
-  async score({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
+		return view.render("pages/score", { score: user.score, fid: user.fid });
+	}
 
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
+	async score({ view, request }: HttpContext) {
+		const body = request.body() as FrameRequest;
 
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
+		const { isValid, message } = await getFrameMessage(body, {
+			neynarApiKey: process.env.NEYNAR_API_KEY,
+		});
 
-    const { fid } = message.interactor;
+		if (!isValid) {
+			console.log("Invalid frame message");
+			return view.render("pages/error");
+		}
 
-    if(message.button === 1) {
-      // search
-      return view.render('pages/search')
-    } else if (message.button === 2) {
-      // leaderboard
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
-      return view.render('pages/leaderboard', { topUsers })
-    } else if (message.button === 3) {
-      // top followers
-      const topUsers = await User.query().whereIn(
-        'fid',
-        Connection.query().where('target_fid', fid).select('source_fid')
-      ).orderBy('score', 'desc').limit(5)
+		const { fid } = message.interactor;
 
-      return view.render('pages/leaderboard', { topUsers })
-    }
-  };
+		if (message.button === 1) {
+			// search
+			return view.render("pages/search");
+		} else if (message.button === 2) {
+			// leaderboard
+			const topUsers = await User.query()
+				.where("score", ">", 0)
+				.orderBy("score", "desc")
+				.limit(5);
+			return view.render("pages/leaderboard", { topUsers });
+		} else if (message.button === 3) {
+			// top followers
+			const topUsers = await User.query()
+				.whereIn(
+					"fid",
+					Connection.query().where("target_fid", fid).select("source_fid"),
+				)
+				.orderBy("score", "desc")
+				.limit(5);
 
-  async followers({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
+			return view.render("pages/leaderboard", { topUsers });
+		}
+	}
 
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
+	async followers({ view, request }: HttpContext) {
+		const body = request.body() as FrameRequest;
 
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
+		const { isValid, message } = await getFrameMessage(body, {
+			neynarApiKey: process.env.NEYNAR_API_KEY,
+		});
 
-    const { fid } = message.interactor;
+		if (!isValid) {
+			console.log("Invalid frame message");
+			return view.render("pages/error");
+		}
 
-    if(message.button === 1) {
-      // my score
-      const user = await User.query().where('fid', fid).first();
+		const { fid } = message.interactor;
 
-      if (!user) {
-        console.log("No user found")
-        return view.render('pages/error');
-      }
+		if (message.button === 1) {
+			// my score
+			const user = await User.query().where("fid", fid).first();
 
-      return view.render('pages/score', { score: user.score, fid: user.fid })
-    } else if (message.button === 2) {
-      // leaderboard
-      const topUsers = await User.query().where('score', '>', 0).orderBy('score', 'desc').limit(5);
-      return view.render('pages/leaderboard', { topUsers })
-    } else if (message.button === 3) {
-      // search
-      return view.render('pages/search')
-    }
-  };
+			if (!user) {
+				console.log("No user found");
+				return view.render("pages/error");
+			}
 
-  async leaderboard({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
+			return view.render("pages/score", { score: user.score, fid: user.fid });
+		} else if (message.button === 2) {
+			// leaderboard
+			const topUsers = await User.query()
+				.where("score", ">", 0)
+				.orderBy("score", "desc")
+				.limit(5);
+			return view.render("pages/leaderboard", { topUsers });
+		} else if (message.button === 3) {
+			// search
+			return view.render("pages/search");
+		}
+	}
 
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
+	async leaderboard({ view, request }: HttpContext) {
+		const body = request.body() as FrameRequest;
 
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
+		const { isValid, message } = await getFrameMessage(body, {
+			neynarApiKey: process.env.NEYNAR_API_KEY,
+		});
 
-    const { fid } = message.interactor;
-    
-    if(message.button === 1) {
-      // my score
-      const user = await User.query().where('fid', fid).first();
+		if (!isValid) {
+			console.log("Invalid frame message");
+			return view.render("pages/error");
+		}
 
-      if (!user) {
-        console.log("No user found")
-        return view.render('pages/error');
-      }
+		const { fid } = message.interactor;
 
-      return view.render('pages/score', { score: user.score, fid: user.fid })
-    } else if (message.button === 2) {
-      // top followers
-      const topUsers = await User.query().whereIn(
-        'fid',
-        Connection.query().where('target_fid', fid).select('source_fid')
-      ).orderBy('score', 'desc').limit(5)
+		if (message.button === 1) {
+			// my score
+			const user = await User.query().where("fid", fid).first();
 
-      return view.render('pages/leaderboard', { topUsers })
-    } else if (message.button === 3) {
-      // search
-      return view.render('pages/search')
-    }
-  };
+			if (!user) {
+				console.log("No user found");
+				return view.render("pages/error");
+			}
 
-  async search({ view, request }: HttpContext) {
-    const body = request.body() as FrameRequest;
+			return view.render("pages/score", { score: user.score, fid: user.fid });
+		} else if (message.button === 2) {
+			// top followers
+			const topUsers = await User.query()
+				.whereIn(
+					"fid",
+					Connection.query().where("target_fid", fid).select("source_fid"),
+				)
+				.orderBy("score", "desc")
+				.limit(5);
 
-    const { isValid, message } = await getFrameMessage(body , {
-      neynarApiKey: process.env.NEYNAR_API_KEY,
-    });
+			return view.render("pages/leaderboard", { topUsers });
+		} else if (message.button === 3) {
+			// search
+			return view.render("pages/search");
+		}
+	}
 
-    if (!isValid) {
-      console.log("Invalid frame message")
-      return view.render('pages/error');
-    }
+	async search({ view, request }: HttpContext) {
+		const body = request.body() as FrameRequest;
 
-    const user = await User.findBy('username', message.input);
+		const { isValid, message } = await getFrameMessage(body, {
+			neynarApiKey: process.env.NEYNAR_API_KEY,
+		});
 
-    if (!user) {
-      console.log("No user found")
-      return view.render('pages/error');
-    }
+		if (!isValid) {
+			console.log("Invalid frame message");
+			return view.render("pages/error");
+		}
 
-    return view.render('pages/score', { score: user.score, fid: user.fid })
-  };
+		const user = await User.findBy("username", message.input);
+
+		if (!user) {
+			console.log("No user found");
+			return view.render("pages/error");
+		}
+
+		return view.render("pages/score", { score: user.score, fid: user.fid });
+	}
 }
