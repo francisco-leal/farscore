@@ -3,6 +3,7 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
 import { Cast } from '#models/cast'
+import { Poap } from '#models/poap'
 
 export default class SyncScores extends BaseCommand {
   static commandName = 'sync:scores'
@@ -40,7 +41,12 @@ export default class SyncScores extends BaseCommand {
     if (connections.length <= 0) {
       return 0;
     }
+
     return Math.log2(connections.length);
+  }
+
+  calculatePoapsScore(poaps: Poap[]) {
+    return poaps.length;
   }
 
   async run() {
@@ -48,8 +54,8 @@ export default class SyncScores extends BaseCommand {
     let page = 1
 
     while(true) {
-      const users = await User.query().orderBy('id', "desc").forPage(page, 100)
-      // const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
+      // const users = await User.query().orderBy('id', "desc").forPage(page, 100)
+      const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
       if(!users || users.length === 0) {
         break;
       }
@@ -57,12 +63,18 @@ export default class SyncScores extends BaseCommand {
 
       for(let user of users) {
         const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
-        const castScore = this.calculateCastsScore(casts)
+        const castScore = this.calculateCastsScore(casts) * 50
 
         const connections = await Connection.query().where('target_fid', user.fid)
         const connectionScore = this.calculateConnectionScore(connections)
 
-        const totalScore = (castScore + connectionScore) * (user.active_farcaster_badge ? 1.2 : 1)
+        const poaps = await Poap.query().where('user_id', user.id)
+        const poapScore = this.calculatePoapsScore(poaps)
+
+        const totalScore = (castScore + connectionScore + poapScore) * (user.active_farcaster_badge ? 1.2 : 1)
+
+        user.score = Math.round(totalScore)
+        await user.save()
 
         this.logger.info(`Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${totalScore}`)
       }

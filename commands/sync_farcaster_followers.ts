@@ -17,7 +17,8 @@ export default class SyncFarcasterFollowers extends BaseCommand {
     let page = 1
 
     while(true) {
-      const users = await User.query().where('id', '<=', 85817).orderBy('id', "desc").forPage(page, 100)
+      // const users = await User.query().where('id', '<=', 85817).orderBy('id', "desc").forPage(page, 100)
+      const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
 
       if(!users || users.length === 0) {
         break;
@@ -36,7 +37,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
 
           if(!userFollowers || !cursor) { break };
 
-          this.logger.info(`Got result from warpcast - ${userFollowers.length} casts. Cursor: ${cursor} - next cursor: ${data.next?.cursor}`)
+          this.logger.info(`Got result from warpcast - ${userFollowers.length} followers. Cursor: ${cursor} - next cursor: ${data.next?.cursor}`)
 
           for(const userFollowing of userFollowers) {
             let connection = await Connection.query().where('target_fid', user.fid).where('source_fid', userFollowing.fid).first()

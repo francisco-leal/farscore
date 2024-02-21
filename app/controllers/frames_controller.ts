@@ -2,10 +2,11 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit';
 import { User } from '#models/user';
 
+const BASE_FID = 195255;
 
 export default class FramesController {
   async index({ view }: HttpContext) {
-    const fid = 195255;
+    const fid = BASE_FID;
 
     const user = await User.query().where('fid', fid).first();
 
