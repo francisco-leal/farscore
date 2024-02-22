@@ -1,16 +1,18 @@
 import env from "#start/env";
-import { DateTime } from "luxon";
-
 import PassportContract from "./passport.json" with { type: "json" };
 
-import { ethers } from "ethers";
-import { createSmartAccountClient } from "@biconomy/account";
-import { PaymasterMode } from "@biconomy/paymaster";
+import { createSmartAccountClient } from "permissionless";
+import { createPublicClient, http, encodeFunctionData } from "viem";
+import { privateKeyToSimpleSmartAccount } from "permissionless/accounts";
+import { baseSepolia } from "viem/chains";
+import { createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
 
 import { generateWallets } from "#services/generate_wallets";
 
 import { User } from "#models/user";
 import { Passport } from "#models/passport";
+
+const ENTRYPOINT = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
 
 export const createPassport = async (userId: number) => {
 	const user = await User.find(userId);
@@ -35,70 +37,94 @@ export const createPassport = async (userId: number) => {
 		return { passport, created: false, error: "Wallets not created." };
 	}
 
-	// Your configuration with private key and Biconomy API key
+	// Your configuration with private key
 	const config = {
 		privateKey: walletsResult.externallyOwnedAccount.privateKey,
 		walletAddress: walletsResult.smartContractAccount.publicAddress,
-		biconomyPaymasterApiKey: env.get("PAYMASTER_API_KEY"),
+		paymasterUrl: env.get("PAYMASTER_URL"),
 		bundlerUrl: env.get("BUNDLER_URL"),
 		rpcUrl: env.get("JSON_RPC_URL"),
 		passportContractAddress: env.get("PASSPORT_CONTRACT_ADDRESS"),
 	};
 
-	// Generate EOA from private key using ethers.js
-	let provider = new ethers.JsonRpcProvider(config.rpcUrl);
-	let signer = new ethers.Wallet(config.privateKey, provider);
+	console.log("config", config);
 
-	// Create Biconomy Smart Account instance
-	const smartAccount = await createSmartAccountClient({
-		signer,
-		biconomyPaymasterApiKey: config.biconomyPaymasterApiKey,
-		bundlerUrl: config.bundlerUrl,
+	const publicClient = createPublicClient({
+		transport: http(config.rpcUrl),
 	});
 
-	const passportContract = new ethers.Contract(
-		config.passportContractAddress,
-		PassportContract.abi,
-		provider,
+	const account = await privateKeyToSimpleSmartAccount(publicClient, {
+		privateKey: config.privateKey,
+		entryPoint: ENTRYPOINT, // global entrypoint
+		factoryAddress: "0x9406Cc6185a346906296840746125a0E44976454",
+	});
+
+	console.log("account.address", account.address);
+
+	const paymasterClient = createPimlicoPaymasterClient({
+		transport: http(config.paymasterUrl),
+		entryPoint: ENTRYPOINT,
+		chain: baseSepolia,
+	});
+
+	console.log("paymasterClient");
+
+	const smartAccountClient = createSmartAccountClient({
+		account,
+		chain: baseSepolia,
+		bundlerTransport: http(config.rpcUrl),
+		// IMPORTANT: Set up the Cloud Paymaster to sponsor your transaction
+		middleware: {
+			sponsorUserOperation: paymasterClient.sponsorUserOperation,
+		},
+	});
+
+	console.log("smartAccountClient");
+
+	const callData = encodeFunctionData({
+		abi: PassportContract.abi,
+		functionName: "create",
+		args: [],
+	});
+
+	console.log("Generated callData:", callData);
+
+	// Send the sponsored transaction!
+	const txHash = await smartAccountClient.sendTransaction({
+		account: smartAccountClient.account,
+		to: config.passportContractAddress,
+		data: callData,
+		value: BigInt(0),
+	});
+
+	console.log(
+		`UserOperation included: https://sepolia.basescan.org/tx/${txHash}`,
 	);
 
-	const minTx = await passportContract.create.populateTransaction();
-	const tx = {
-		to: config.passportContractAddress,
-		data: minTx.data,
-	};
-
-	// Send the transaction and get the transaction hash
-	const userOpResponse = await smartAccount.sendTransaction(tx, {
-		paymasterServiceData: { mode: PaymasterMode.SPONSORED },
+	const passportId = await publicClient.readContract({
+		address: config.passportContractAddress,
+		abi: PassportContract.abi,
+		functionName: "passportId",
+		args: [config.walletAddress],
 	});
-	const { transactionHash } = await userOpResponse.waitForTxHash();
 
-	if (!transactionHash) {
-		console.error("Something went wrong. Unable to fetch transaction");
-		return { passport, created: false, error: "Missing transaction hash." };
-	}
+	// const transaction = await publicClient.waitForTransactionReceipt({
+	// 	hash: txHash,
+	// });
 
-	const userOpReceipt = await userOpResponse.wait();
+	// const txBlockNumber = transaction.blockNumber;
+	// const txBlock = await provider.getBlock(txBlockNumber);
 
-	if (userOpReceipt.success != "true") {
-		console.error("Unable to create passport. UserOp failed.");
-		return { passport, created: false, error: "userOp was not successful." };
-	}
-
-	const txBlockNumber = userOpReceipt.receipt.blockNumber;
-	const txBlock = await provider.getBlock(txBlockNumber);
-
-	const blockTimestamp = txBlock?.timestamp;
+	// const blockTimestamp = txBlock?.timestamp;
 
 	passport = new Passport();
-	passport.passportId = await passportContract.passportId(config.walletAddress);
+	passport.passportId = Number(passportId);
 	passport.userId = userId;
-	passport.transactionHash = transactionHash;
-	if (blockTimestamp) {
-		const jsDate = new Date(blockTimestamp * 1000);
-		passport.transactionTimestamp = DateTime.fromJSDate(jsDate);
-	}
+	passport.transactionHash = txHash;
+	// if (blockTimestamp) {
+	// 	const jsDate = new Date(blockTimestamp * 1000);
+	// 	passport.transactionTimestamp = DateTime.fromJSDate(jsDate);
+	// }
 	await passport.save();
 
 	return { passport, created: true };

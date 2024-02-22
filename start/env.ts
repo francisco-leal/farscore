@@ -54,5 +54,13 @@ export default await Env.create(new URL("../", import.meta.url), {
 	JSON_RPC_URL: Env.schema.string(),
 	BUNDLER_URL: Env.schema.string(),
 	PASSPORT_CONTRACT_ADDRESS: Env.schema.string(),
-	PAYMASTER_API_KEY: Env.schema.string(),
+	PAYMASTER_URL: Env.schema.string(),
+
+	/*
+  |----------------------------------------------------------
+  | Talent Protocol API
+  |----------------------------------------------------------
+  */
+	TALENT_PROTOCOL_API_KEY: Env.schema.string(),
+	TALENT_PROTOCOL_API_URL: Env.schema.string(),
 });
