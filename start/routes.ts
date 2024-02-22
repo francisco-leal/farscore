@@ -7,31 +7,30 @@
 |
 */
 
-import router from "@adonisjs/core/services/router";
-import FramesController from "#controllers/frames_controller";
+import router from '@adonisjs/core/services/router'
+import FramesController from '#controllers/frames_controller'
 
-const APICastsController = () => import("#controllers/api/casts_controller");
-const APIUsersController = () => import("#controllers/api/users_controller");
-const ImagesController = () => import("#controllers/images_controller");
-const LeaderboardController = () =>
-	import("#controllers/leaderboard_controller");
-const SearchController = () => import("#controllers/search_controller");
-const FollowersController = () => import("#controllers/followers_controller");
+const APICastsController = () => import('#controllers/api/casts_controller')
+const APIUsersController = () => import('#controllers/api/users_controller')
+const ImagesController = () => import('#controllers/images_controller')
+const LeaderboardController = () => import('#controllers/leaderboard_controller')
+const SearchController = () => import('#controllers/search_controller')
+const FollowersController = () => import('#controllers/followers_controller')
 
-router.on('/').render('pages/home');
-router.resource('api/casts', APICastsController).only(['index', 'show']);
-router.resource('api/users', APIUsersController).only(['index', 'show']);
-router.resource('leaderboard', LeaderboardController).only(['index', 'store']);
-router.resource('search', SearchController).only(['index']);
-router.resource('followers', FollowersController).only(['index']);
+router.on('/').render('pages/home')
+router.resource('api/casts', APICastsController).only(['index', 'show'])
+router.resource('api/users', APIUsersController).only(['index', 'show'])
+router.resource('leaderboard', LeaderboardController).only(['index', 'store'])
+router.resource('search', SearchController).only(['index'])
+router.resource('followers', FollowersController).only(['index'])
 
-router.get('generated_images/leaderboard', [ImagesController, 'leaderboard']);
-router.get('generated_images/followers/:id', [ImagesController, 'followers']);
-router.get('generated_images/score/:id', [ImagesController, 'score']);
+router.get('generated_images/leaderboard', [ImagesController, 'leaderboard'])
+router.get('generated_images/followers/:id', [ImagesController, 'followers'])
+router.get('generated_images/score/:id', [ImagesController, 'score'])
 
-router.post('frames/main', [FramesController, 'main']);
-router.post('frames/followers', [FramesController, 'followers']);
-router.post('frames/leaderboard', [FramesController, 'leaderboard']);
-router.post('frames/search', [FramesController, 'search']);
-router.post('frames/score', [FramesController, 'score']);
-router.get('frames', [FramesController, 'index']);
+router.post('frames/main', [FramesController, 'main'])
+router.post('frames/followers', [FramesController, 'followers'])
+router.post('frames/leaderboard', [FramesController, 'leaderboard'])
+router.post('frames/search', [FramesController, 'search'])
+router.post('frames/score', [FramesController, 'score'])
+router.get('frames', [FramesController, 'index'])
