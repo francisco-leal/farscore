@@ -6,7 +6,9 @@ export default class ResetScores extends BaseCommand {
   static commandName = 'reset:scores'
   static description = ''
 
-  static options: CommandOptions = {}
+  static options: CommandOptions = {
+    startApp: true,
+  }
 
   async run() {
     this.logger.info('Hello world from "ResetScores"')
