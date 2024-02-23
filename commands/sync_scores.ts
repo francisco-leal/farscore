@@ -55,12 +55,12 @@ export default class SyncScores extends BaseCommand {
     for (let user of users) {
       processedUsers += 1
       const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(500)
-      const castScore = this.calculateCastsScore(casts) * 50
+      const castScore = this.calculateCastsScore(casts) * 25
 
       const connectionScore = this.calculateConnectionScore(user.follower_count)
 
       const poaps = await Poap.query().where('user_id', user.id)
-      const poapScore = this.calculatePoapsScore(poaps)
+      const poapScore = this.calculatePoapsScore(poaps) * 10
 
       const totalScore =
         (castScore + connectionScore + poapScore) * (user.active_farcaster_badge ? 1.2 : 1)
