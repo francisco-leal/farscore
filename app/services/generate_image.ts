@@ -65,7 +65,9 @@ export const generateScoreImage = async (fid: number) => {
           height: '100%',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'black',
+          backgroundImage: "url('https://farscout.xyz/images/thumbnail.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         },
       },
     },
@@ -167,7 +169,9 @@ export const generateLeaderboardImage = async () => {
           height: '100%',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'black',
+          backgroundImage: "url('https://farscout.xyz/images/thumbnail.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         },
       },
     },
@@ -272,7 +276,89 @@ export const generateFollowersImage = async (fid: number) => {
           height: '100%',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'black',
+          backgroundImage: "url('https://farscout.xyz/images/thumbnail.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        },
+      },
+    },
+    {
+      width: 675,
+      height: 675,
+      fonts: [
+        {
+          data: regularFontData,
+          name: 'SpaceGrotesk-Regular',
+        },
+        {
+          data: boldFontData,
+          name: 'SpaceGrotesk-SemiBold',
+        },
+      ],
+    }
+  )
+}
+
+export const generateIntroMessage = async () => {
+  const regularFontPath = join(process.cwd(), '/public/font', 'SpaceGrotesk-Regular.ttf')
+  const regularFontData = fs.readFileSync(regularFontPath)
+
+  const boldFontPath = join(process.cwd(), '/public/font', 'SpaceGrotesk-SemiBold.ttf')
+  const boldFontData = fs.readFileSync(boldFontPath)
+
+  return await satori(
+    {
+      type: 'div',
+      props: {
+        children: [
+          {
+            type: 'p',
+            props: {
+              children: `farscout.xyz`,
+              style: {
+                fontSize: 24,
+                fontFamily: 'SpaceGrotesk-regular',
+                color: 'white',
+                zIndex: 1,
+              },
+            },
+          },
+          {
+            type: 'p',
+            props: {
+              children: `a simple reputation frame built on top of`,
+              style: {
+                fontSize: 24,
+                fontFamily: 'SpaceGrotesk-regular',
+                color: 'white',
+                zIndex: 1,
+              },
+            },
+          },
+          {
+            type: 'p',
+            props: {
+              children: `farcaster and airstack`,
+              style: {
+                fontSize: 24,
+                fontFamily: 'SpaceGrotesk-SemiBold',
+                color: 'white',
+                zIndex: 1,
+              },
+            },
+          },
+        ],
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundImage: "url('https://farscout.xyz/images/thumbnail.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         },
       },
     },

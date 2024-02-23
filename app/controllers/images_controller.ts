@@ -3,12 +3,13 @@ import {
   generateScoreImage,
   generateLeaderboardImage,
   generateFollowersImage,
+  generateIntroMessage,
 } from '#services/generate_image'
 import sharp from 'sharp'
 
 export default class ImagesController {
-  async show({ params, response }: HttpContext) {
-    const svg = await generateScoreImage(params.id)
+  async show({ response }: HttpContext) {
+    const svg = await generateIntroMessage()
     const pngBuffer = await sharp(Buffer.from(svg)).toFormat('png').toBuffer()
 
     response.header('Content-type', 'image/png')
