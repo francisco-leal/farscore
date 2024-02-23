@@ -24,6 +24,7 @@ router.resource('leaderboard', LeaderboardController).only(['index', 'store'])
 router.resource('search', SearchController).only(['index'])
 router.resource('followers', FollowersController).only(['index'])
 
+router.get('generated_images/:id', [ImagesController, 'show'])
 router.get('generated_images/leaderboard', [ImagesController, 'leaderboard'])
 router.get('generated_images/followers/:id', [ImagesController, 'followers'])
 router.get('generated_images/score/:id', [ImagesController, 'score'])

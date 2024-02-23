@@ -1,9 +1,11 @@
-import type { HttpContext } from '@adonisjs/core/http'
+import { Redirect, type HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
 
 const BASE_FID = 195255
+const REDIRECT_URL =
+  'https://talentprotocol.notion.site/FAQ-FarScout-5dfa30d2aa374ef687d1b1489af9cebd?pvs=4'
 
 export default class FramesController {
   async index({ view }: HttpContext) {
@@ -19,7 +21,7 @@ export default class FramesController {
     return view.render('pages/score', { score: user.score, fid: user.fid })
   }
 
-  async main({ view, request }: HttpContext) {
+  async main({ view, request, response }: HttpContext) {
     const body = request.body() as FrameRequest
 
     const { isValid, message } = await getFrameMessage(body, {
@@ -35,6 +37,10 @@ export default class FramesController {
 
     const user = await User.query().where('fid', fid).first()
 
+    if (message.button === 2) {
+      return response.redirect().toPath(REDIRECT_URL)
+    }
+
     if (!user) {
       console.log('No user found')
       return view.render('pages/score', { score: 0, fid: -1 })
@@ -43,7 +49,7 @@ export default class FramesController {
     return view.render('pages/score', { score: user.score, fid: user.fid })
   }
 
-  async score({ view, request }: HttpContext) {
+  async score({ view, request, response }: HttpContext) {
     const body = request.body() as FrameRequest
 
     const { isValid, message } = await getFrameMessage(body, {
@@ -72,10 +78,12 @@ export default class FramesController {
         .limit(5)
 
       return view.render('pages/leaderboard', { topUsers })
+    } else if (message.button === 4) {
+      return response.redirect().toPath(REDIRECT_URL)
     }
   }
 
-  async followers({ view, request }: HttpContext) {
+  async followers({ view, request, response }: HttpContext) {
     const body = request.body() as FrameRequest
 
     const { isValid, message } = await getFrameMessage(body, {
@@ -106,10 +114,12 @@ export default class FramesController {
     } else if (message.button === 3) {
       // search
       return view.render('pages/search')
+    } else if (message.button === 4) {
+      return response.redirect().toPath(REDIRECT_URL)
     }
   }
 
-  async leaderboard({ view, request }: HttpContext) {
+  async leaderboard({ view, request, response }: HttpContext) {
     const body = request.body() as FrameRequest
 
     const { isValid, message } = await getFrameMessage(body, {
@@ -144,6 +154,8 @@ export default class FramesController {
     } else if (message.button === 3) {
       // search
       return view.render('pages/search')
+    } else if (message.button === 4) {
+      return response.redirect().toPath(REDIRECT_URL)
     }
   }
 

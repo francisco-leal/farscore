@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>farscore - followers</title>
+  <title>farscout - followers</title>
   <meta property="fc:frame" content="vNext" />
   <meta property="fc:frame:image" content="https://farscout.xyz{{route('generated_images.followers', [fid])}}" />
   <meta property="fc:frame:image:aspect_ratio" content="1:1" />
@@ -11,27 +12,31 @@
   <meta property="fc:frame:button:1:action" content="post" />
   <meta property="fc:frame:button:2" content="Leaderboard" />
   <meta property="fc:frame:button:2:action" content="post" />
-  <meta property="fc:frame:button:2" content="Leaderboard" />
-  <meta property="fc:frame:button:2:action" content="post" />
+  <meta property="fc:frame:button:3" content="Search" />
+  <meta property="fc:frame:button:3:action" content="post" />
+  <meta property="fc:frame:button:4" content="FAQ" />
+  <meta property="fc:frame:button:4:action" content="post_redirect" />
   <meta property="fc:frame:post_url" content="https://farscout.xyz/frames/followers" />
-  <meta property="og:title" content="farscore - leaderboard" />
+  <meta property="og:title" content="farscout - leaderboard" />
   <meta property="og:description" content="revealing your farcaster score" />
   <meta property="fc:frame:image" content="https://farscout.xyz{{route('generated_images.followers', [fid])}}" />
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="dark dark:bg-gray-800 dark:text-white">
   <div class="container mx-auto px-4">
     <h1 class="text-xl font-bold text-center my-4">Top followers</h1>
     <div class="flex flex-col items-center">
       <ul class="list-none">
         @each(user in topUsers)
-          <li class="flex items-center space-x-4 mb-2">
-            <img src="{{ user.profilePictureUrl }}" alt="Profile Picture" class="w-10 h-10 rounded-full object-cover">
-            <span>{{ user.username }} - Score: {{ user.score }}</span>
-          </li>
+        <li class="flex items-center space-x-4 mb-2">
+          <img src="{{ user.profilePictureUrl }}" alt="Profile Picture" class="w-10 h-10 rounded-full object-cover">
+          <span>{{ user.username }} - Score: {{ user.score }}</span>
+        </li>
         @endeach
       </ul>
     </div>
   </div>
 </body>
+
 </html>

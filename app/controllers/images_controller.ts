@@ -8,7 +8,7 @@ import sharp from 'sharp'
 
 export default class ImagesController {
   async show({ params, response }: HttpContext) {
-    const svg = await generateFollowersImage(params.id)
+    const svg = await generateScoreImage(params.id)
     const pngBuffer = await sharp(Buffer.from(svg)).toFormat('png').toBuffer()
 
     response.header('Content-type', 'image/png')

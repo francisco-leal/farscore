@@ -47,7 +47,7 @@ export const generateScoreImage = async (fid: number) => {
           {
             type: 'p',
             props: {
-              children: `by farscore.xyz`,
+              children: `by farscout.xyz`,
               style: {
                 fontSize: 24,
                 fontFamily: 'SpaceGrotesk-SemiBold',
@@ -148,7 +148,7 @@ export const generateLeaderboardImage = async () => {
           {
             type: 'p',
             props: {
-              children: `by farscore.xyz`,
+              children: `by farscout.xyz`,
               style: {
                 fontSize: 24,
                 fontFamily: 'SpaceGrotesk-SemiBold',
@@ -253,7 +253,7 @@ export const generateFollowersImage = async (fid: number) => {
           {
             type: 'p',
             props: {
-              children: `by farscore.xyz`,
+              children: `by farscout.xyz`,
               style: {
                 fontSize: 24,
                 fontFamily: 'SpaceGrotesk-SemiBold',
