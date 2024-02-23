@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
+import { createPassport } from '#services/passport/create_passport'
 
 const BASE_FID = 195255
 
@@ -37,8 +38,10 @@ export default class FramesController {
 
     if (!user) {
       console.log('No user found')
-      return view.render('pages/error')
+      return view.render('pages/score', { score: 0, fid: -1 })
     }
+
+    await createPassport(user.id)
 
     return view.render('pages/score', { score: user.score, fid: user.fid })
   }
@@ -71,7 +74,7 @@ export default class FramesController {
         .orderBy('score', 'desc')
         .limit(5)
 
-      return view.render('pages/top_followers', { topUsers, fid })
+      return view.render('pages/leaderboard', { topUsers })
     }
   }
 
@@ -140,7 +143,7 @@ export default class FramesController {
         .orderBy('score', 'desc')
         .limit(5)
 
-      return view.render('pages/top_followers', { topUsers, fid })
+      return view.render('pages/leaderboard', { topUsers })
     } else if (message.button === 3) {
       // search
       return view.render('pages/search')
