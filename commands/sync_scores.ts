@@ -46,35 +46,31 @@ export default class SyncScores extends BaseCommand {
 
   async run() {
     this.logger.info('Starting score calculation')
-    let page = 1
+    let processedUsers = 0
 
-    while (true) {
-      // const users = await User.query().orderBy('id', "desc").forPage(page, 100)
-      const users = await User.query().where('fid', 'in', [195255, 3, 2, 221216, 8446])
-      if (!users || users.length === 0) {
-        break
-      }
-      page += 1
+    const users = await User.query()
 
-      for (let user of users) {
-        const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
-        const castScore = this.calculateCastsScore(casts) * 50
+    this.logger.info(`Total users: ${users.length}`)
 
-        const connectionScore = this.calculateConnectionScore(user.follower_count)
+    for (let user of users) {
+      processedUsers += 1
+      const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
+      const castScore = this.calculateCastsScore(casts) * 50
 
-        const poaps = await Poap.query().where('user_id', user.id)
-        const poapScore = this.calculatePoapsScore(poaps)
+      const connectionScore = this.calculateConnectionScore(user.follower_count)
 
-        const totalScore =
-          (castScore + connectionScore + poapScore) * (user.active_farcaster_badge ? 1.2 : 1)
+      const poaps = await Poap.query().where('user_id', user.id)
+      const poapScore = this.calculatePoapsScore(poaps)
 
-        user.score = Math.round(totalScore)
-        await user.save()
+      const totalScore =
+        (castScore + connectionScore + poapScore) * (user.active_farcaster_badge ? 1.2 : 1)
 
-        this.logger.info(
-          `Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${totalScore}`
-        )
-      }
+      user.score = Math.round(totalScore)
+      await user.save()
+
+      this.logger.info(
+        `Processing scores for ${user.username} -> Cast Score: ${castScore}, Connection Score: ${connectionScore}, Total Score: ${totalScore}`
+      )
     }
   }
 }
