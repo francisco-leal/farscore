@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
-import { createPassport } from '#services/passport/create_passport'
 
 const BASE_FID = 195255
 
@@ -40,8 +39,6 @@ export default class FramesController {
       console.log('No user found')
       return view.render('pages/score', { score: 0, fid: -1 })
     }
-
-    await createPassport(user.id)
 
     return view.render('pages/score', { score: user.score, fid: user.fid })
   }
