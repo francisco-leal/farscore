@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/ace'
+import { args, BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { User } from '#models/user'
 import { Cast } from '#models/cast'
@@ -11,6 +11,9 @@ export default class SyncScores extends BaseCommand {
   static options: CommandOptions = {
     startApp: true,
   }
+
+  @args.string()
+  declare farcasterId: string
 
   calculateCastScore(cast: Cast) {
     let score = 0
@@ -48,7 +51,13 @@ export default class SyncScores extends BaseCommand {
     this.logger.info('Starting score calculation')
     let processedUsers = 0
 
-    const users = await User.query()
+    let users
+
+    if (this.farcasterId) {
+      users = await User.query().where('fid', this.farcasterId)
+    } else {
+      users = await User.query().orderBy('id', 'desc')
+    }
 
     this.logger.info(`Total users: ${users.length}`)
 
