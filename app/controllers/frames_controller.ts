@@ -77,7 +77,7 @@ export default class FramesController {
         .orderBy('score', 'desc')
         .limit(5)
 
-      return view.render('pages/leaderboard', { topUsers })
+      return view.render('pages/top_followers', { topUsers, fid })
     } else if (message.button === 4) {
       return response.redirect().toPath(REDIRECT_URL)
     }
@@ -150,7 +150,7 @@ export default class FramesController {
         .orderBy('score', 'desc')
         .limit(5)
 
-      return view.render('pages/leaderboard', { topUsers })
+      return view.render('pages/top_followers', { topUsers, fid })
     } else if (message.button === 3) {
       // search
       return view.render('pages/search')
