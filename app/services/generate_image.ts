@@ -2,7 +2,6 @@ import satori from 'satori'
 import { join } from 'path'
 import * as fs from 'fs'
 import { User } from '#models/user'
-import { Connection } from '#models/connection'
 
 export const generateScoreImage = async (fid: number) => {
   const user = await User.findBy('fid', fid)
@@ -194,8 +193,9 @@ export const generateLeaderboardImage = async () => {
 
 export const generateFollowersImage = async (fid: number) => {
   const topUsers = await User.query()
-    .whereIn('fid', Connection.query().where('target_fid', fid).select('source_fid'))
-    .orderBy('score', 'desc')
+    .join('connections', 'users.fid', 'connections.source_fid')
+    .where('connections.target_fid', fid)
+    .orderBy('users.score', 'desc')
     .limit(5)
 
   const regularFontPath = join(process.cwd(), '/public/font', 'SpaceGrotesk-Regular.ttf')
