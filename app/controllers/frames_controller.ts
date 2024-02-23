@@ -1,4 +1,4 @@
-import { Redirect, type HttpContext } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
