@@ -54,7 +54,7 @@ export default class SyncScores extends BaseCommand {
 
     for (let user of users) {
       processedUsers += 1
-      const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(100)
+      const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(500)
       const castScore = this.calculateCastsScore(casts) * 50
 
       const connectionScore = this.calculateConnectionScore(user.follower_count)
