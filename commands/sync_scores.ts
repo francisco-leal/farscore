@@ -1,7 +1,6 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { User } from '#models/user'
-import { Connection } from '#models/connection'
 import { Cast } from '#models/cast'
 import { Poap } from '#models/poap'
 
