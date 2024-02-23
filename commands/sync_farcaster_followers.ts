@@ -31,13 +31,12 @@ export default class SyncFarcasterFollowers extends BaseCommand {
     for (let user of users) {
       this.logger.info(`Processing ${user.follower_count} followers for ${user.username}`)
       let cursor = null
-
       while (true) {
         const { data } = await fetchFollowersWarpcast(user.fid, cursor)
         const userFollowers = data.result.users
         cursor = data.next?.cursor
 
-        if (!userFollowers || !cursor) {
+        if (!userFollowers) {
           break
         }
 
@@ -57,6 +56,10 @@ export default class SyncFarcasterFollowers extends BaseCommand {
             connection.dappName = 'farcaster'
             await connection.save()
           }
+        }
+
+        if (userFollowers.length < 1000 || !cursor) {
+          break
         }
       }
     }
