@@ -23,7 +23,7 @@ export default class SyncScores extends BaseCommand {
     score += cast.watches_count
     score += cast.quotes_count * 1.5
     if (cast.content.includes('$DEGEN')) {
-      score = score * 1.2
+      score = score * 1.05
     }
     return score
   }
@@ -64,7 +64,7 @@ export default class SyncScores extends BaseCommand {
     for (let user of users) {
       processedUsers += 1
       const casts = await Cast.query().where('user_id', user.id).orderBy('id', 'desc').limit(500)
-      const castScore = this.calculateCastsScore(casts) * 25
+      const castScore = this.calculateCastsScore(casts) * 10
 
       const connectionScore = this.calculateConnectionScore(user.follower_count)
 
