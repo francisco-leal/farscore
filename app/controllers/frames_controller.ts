@@ -2,6 +2,7 @@ import { type HttpContext } from '@adonisjs/core/http'
 import { FrameRequest, getFrameMessage } from '@coinbase/onchainkit'
 import { User } from '#models/user'
 import { Connection } from '#models/connection'
+import { scoreForUser } from '#services/score/calculate'
 
 const BASE_FID = 195255
 const REDIRECT_URL =
@@ -44,6 +45,12 @@ export default class FramesController {
     if (!user) {
       console.log('No user found')
       return view.render('pages/score', { score: 0, fid: -1 })
+    }
+
+    if (user.score === 0) {
+      const score = await scoreForUser(user)
+      user.score = score
+      user.save()
     }
 
     return view.render('pages/score', { score: user.score, fid: user.fid })
@@ -106,6 +113,12 @@ export default class FramesController {
         return view.render('pages/error')
       }
 
+      if (user.score === 0) {
+        const score = await scoreForUser(user)
+        user.score = score
+        user.save()
+      }
+
       return view.render('pages/score', { score: user.score, fid: user.fid })
     } else if (message.button === 2) {
       // leaderboard
@@ -140,6 +153,12 @@ export default class FramesController {
       if (!user) {
         console.log('No user found')
         return view.render('pages/error')
+      }
+
+      if (user.score === 0) {
+        const score = await scoreForUser(user)
+        user.score = score
+        user.save()
       }
 
       return view.render('pages/score', { score: user.score, fid: user.fid })

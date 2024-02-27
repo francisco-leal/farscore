@@ -21,7 +21,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
     let users
 
     if (this.farcasterId !== '-1') {
-      users = await User.query().where('fid', this.farcasterId)
+      users = await User.query().where('fid', '>=', this.farcasterId)
     } else {
       users = await User.query().orderBy('id', 'desc')
     }
