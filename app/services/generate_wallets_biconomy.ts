@@ -1,18 +1,14 @@
 import env from "#start/env";
 
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { createPublicClient, http } from "viem";
-
-import { privateKeyToSimpleSmartAccount } from "permissionless/accounts";
+import { ethers } from "ethers";
+import { createSmartAccountClient } from "@biconomy/account";
 
 import { User } from "#models/user";
 import { Wallet } from "#models/wallet";
 
 import db from "@adonisjs/lucid/services/db";
 
-const ENTRYPOINT = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
-
-export const generateWallets = async (userId: number) => {
+export const generateWalletsBiconomy = async (userId: number) => {
 	const user = await User.find(userId);
 
 	if (!user) {
@@ -38,32 +34,31 @@ export const generateWallets = async (userId: number) => {
 	}
 
 	await db.transaction(async (trx) => {
-		const privateKey = generatePrivateKey();
-		const account = privateKeyToAccount(privateKey);
+		let ethersWallet = ethers.Wallet.createRandom();
+		const provider = new ethers.JsonRpcProvider(env.get("JSON_RPC_URL"));
+		ethersWallet = ethersWallet.connect(provider);
 
 		externallyOwnedAccount = new Wallet();
 		externallyOwnedAccount.userId = user.id;
-		externallyOwnedAccount.publicAddress = account.address;
+		externallyOwnedAccount.publicAddress = ethersWallet.address;
 		externallyOwnedAccount.walletType = "externally_owned_account";
-		externallyOwnedAccount.privateKey = privateKey;
+		externallyOwnedAccount.privateKey = ethersWallet.privateKey;
+		externallyOwnedAccount.mnemonic = ethersWallet.mnemonic?.phrase;
 
 		externallyOwnedAccount.useTransaction(trx);
 		await externallyOwnedAccount.save();
 
-		const publicClient = createPublicClient({
-			transport: http(env.get("JSON_RPC_URL")),
-		});
-
-		const smartAccount = await privateKeyToSimpleSmartAccount(publicClient, {
-			privateKey,
-			entryPoint: ENTRYPOINT, // global entrypoint
-			factoryAddress: "0x9406Cc6185a346906296840746125a0E44976454",
+		console.log(ethersWallet.provider);
+		const biconomySmartAccount = await createSmartAccountClient({
+			signer: ethersWallet,
+			bundlerUrl: env.get("BUNDLER_URL"),
 		});
 
 		smartContractAccount = new Wallet();
 		smartContractAccount.userId = user.id;
 		smartContractAccount.walletType = "smart_contract_account";
-		smartContractAccount.publicAddress = await smartAccount.address;
+		smartContractAccount.publicAddress =
+			await biconomySmartAccount.getAccountAddress();
 
 		smartContractAccount.useTransaction(trx);
 		await smartContractAccount.save();
