@@ -29,7 +29,7 @@ export default class SyncFarcasterFollowers extends BaseCommand {
     this.logger.info(`users: ${users.length}`)
 
     for (let user of users) {
-      this.logger.info(`Processing ${user.follower_count} followers for ${user.username}`)
+      this.logger.info(`Processing followers for ${user.username} - ${user.fid} | ${user.id}`)
       let cursor = null
       while (true) {
         const { data } = await fetchFollowersWarpcast(user.fid, cursor)
